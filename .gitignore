@@ -1,14 +1,19 @@
 # HTML content
 /*.html
+/html
 
 # plera content
 /plera/
+
+# association era content
+/associationera/
 
 # CSV
 /*.csv
 
 # TXT
 /*.txt
+/static
 
 # JSON
 /*.json
