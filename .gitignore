@@ -3,3 +3,9 @@
 
 # plera content
 /plera/
+
+# CSV
+/*.CSV
+
+# TXT
+/*.TXT
