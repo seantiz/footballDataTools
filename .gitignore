@@ -10,6 +10,8 @@
 
 # CSV
 /*.csv
+/data
+/kagglefoot
 
 # TXT
 /*.txt
