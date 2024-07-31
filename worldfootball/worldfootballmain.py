@@ -123,14 +123,14 @@ def get_team_suggestions(letter):
 
 async def process_team(session, team_name):
     tasks = []
-    for season_start in range(1992, 2024):  # From 1992-1993 to 2023-2024
+    for season_start in range(1992, 2024):
         season_end = season_start + 1
         task = asyncio.create_task(process_team_season(session, team_name, season_start, season_end))
         tasks.append(task)
-        if len(tasks) >= 5:  # Process 5 seasons concurrently
+        if len(tasks) >= 5: # Concurrency setting
             await asyncio.gather(*tasks)
             tasks = []
-            await asyncio.sleep(3)  # 3-second delay between each batch
+            await asyncio.sleep(3)
     
     if tasks:
         await asyncio.gather(*tasks)
