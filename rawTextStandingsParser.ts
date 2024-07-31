@@ -3,7 +3,7 @@ import * as fs from 'fs';
 function formatStandings(filePath: string): string {
     const rawStandings = fs.readFileSync(filePath, 'utf8');
     const lines = rawStandings.split('\n');
-    let formattedStandings = '';
+    let csvStandings = '';
     let currentPosition = 1;
     let teamData: string[] = [];
     let currentSeason = '';
@@ -13,15 +13,18 @@ function formatStandings(filePath: string): string {
         if (line === '') continue;
 
         if (line.match(/^\d{4}-\d{4}$/)) {
-            // This is a season header
+          
+            // Find the season header to divide season standings
+
             currentSeason = line;
             currentPosition = 1;
-            formattedStandings += currentSeason + '\n';
+            csvStandings += currentSeason + '\n';
             continue;
         }
 
         if (line.match(/^\d+$/)) {
-            // This is a position number, skip it
+            
+            // Skip each line with a table position number
             continue;
         }
 
@@ -32,17 +35,16 @@ function formatStandings(filePath: string): string {
         } else {
             // This is the team's statistics
             teamData = teamData.concat(line.split('\t'));
-            formattedStandings += teamData.join(',') + '\n';
+            csvStandings += teamData.join(',') + '\n';
             teamData = [];
             currentPosition++;
         }
     }
 
-    return formattedStandings.trim();
+    return csvStandings.trim();
 }
 
-// Usage
-const formattedData = formatStandings('raw_standings.txt');
-fs.writeFileSync('standings.csv', formattedData);
+const formattedCsv = formatStandings('./static/raw_standings.txt');
+fs.writeFileSync('standings.csv', formattedCsv);
 
-console.log('Formatting complete. Check formatted_standings.csv');
+console.log('Formatting complete. Check standings.csv');

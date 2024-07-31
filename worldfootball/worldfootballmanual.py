@@ -3,13 +3,9 @@ import aiohttp
 from bs4 import BeautifulSoup
 import csv
 import os
-from datetime import datetime
 
 base_url = "https://www.worldfootball.net"
 league_name = "eng-premier-league"
-
-# Get the current year
-current_year = datetime.now().year
 
 async def fetch(session, url):
     async with session.get(url) as response:
@@ -22,22 +18,25 @@ async def process_team_season(session, team_name, season_start, season_end):
     
     soup = BeautifulSoup(html, 'html.parser')
     
+    def convert_dash_to_zero(value):
+        return "0" if value.strip() == "-" else value.strip()
+    
     # Extract player data
     players = []
     player_rows = soup.select("table.standard_tabelle tr")
     for row in player_rows[1:]:  # Skip header row
         cells = row.select("td")
         if len(cells) == 10:  # Ensure we have all expected columns
-            name = cells[0].select_a[0].text.strip()
-            minutes = cells[1].text.strip()
-            appearances = cells[2].text.strip()
-            starting = cells[3].text.strip()
-            subs_in = cells[4].text.strip()
-            subs_out = cells[5].text.strip()
-            goals = cells[6].text.strip()
-            yellow_cards = cells[7].text.strip()
-            second_yellow = cells[8].text.strip()
-            red_cards = cells[9].text.strip()
+            name = cells[0].select_one("a").text.strip() if cells[0].select_one("a") else cells[0].text.strip()
+            minutes = convert_dash_to_zero(cells[1].text)
+            appearances = convert_dash_to_zero(cells[2].text)
+            starting = convert_dash_to_zero(cells[3].text)
+            subs_in = convert_dash_to_zero(cells[4].text)
+            subs_out = convert_dash_to_zero(cells[5].text)
+            goals = convert_dash_to_zero(cells[6].text)
+            yellow_cards = convert_dash_to_zero(cells[7].text)
+            second_yellow = convert_dash_to_zero(cells[8].text)
+            red_cards = convert_dash_to_zero(cells[9].text)
             
             players.append({
                 "Name": name,
@@ -67,15 +66,23 @@ async def process_team_season(session, team_name, season_start, season_end):
 
 
 async def main():
-    team_name = input("Enter the team name (e.g., 'arsenal-fc'): ").strip()
-    
     async with aiohttp.ClientSession() as session:
-        tasks = []
-        for season_start in range(1992, current_year):
-            season_end = season_start + 1
-            task = asyncio.ensure_future(process_team_season(session, team_name, season_start, season_end))
-            tasks.append(task)
-        await asyncio.gather(*tasks)
+        while True:
+            team_name = input("Enter the team name or 'quit': ").strip().lower()
+            if team_name == 'quit':
+                print("App closed. See you next time!")
+                break
+
+            try:
+                season_start = int(input("Enter the season start year (e.g. 2022 for season 2022-2023): "))
+                season_end = season_start + 1
+                await process_team_season(session, team_name, season_start, season_end)
+            except ValueError:
+                print("Please enter a valid year (YYYY format).")
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+
+            print("\n")  # Add a newline for better readability between iterations
 
 if __name__ == "__main__":
     asyncio.run(main())

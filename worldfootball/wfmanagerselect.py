@@ -16,12 +16,15 @@ def parse_date(date_str):
 
 async def process_team_managers(session, team_name):
     url = f"{base_url}/teams/{team_name}/9/"
+
     html = await fetch(session, url)
+    
     soup = BeautifulSoup(html, 'html.parser')
     
+    # Extract manager data
     managers = []
     manager_rows = soup.select("table.standard_tabelle tr")
-    for row in manager_rows[1:]:
+    for row in manager_rows[1:]:  # Skip header row
         cells = row.select("td")
         if len(cells) == 4:
             period = cells[0].text.strip()
@@ -59,8 +62,10 @@ async def process_seasons(session, team_name, managers, start_season, end_season
         manager = get_manager_for_season(managers, season_start, season_end)
         
         if manager:
+            # Ensure directory exists
             os.makedirs(f"data/{team_name}/season/{season_start}-{season_end}/manager", exist_ok=True)
             
+            # Write to CSV
             fieldnames = ["Name", "Country", "Born"]
             with open(f"data/{team_name}/season/{season_start}-{season_end}/manager/info.csv", 'w', newline='', encoding='utf-8') as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -75,69 +80,32 @@ async def process_seasons(session, team_name, managers, start_season, end_season
         else:
             print(f"No manager found for {team_name} season {season_start}-{season_end}")
         
-        await asyncio.sleep(1)  # Reduced delay to 1 second
-
-async def validate_team_name(session, team_name):
-    url = f"{base_url}/teams/{team_name}/"
-    try:
-        html = await fetch(session, url)
-        soup = BeautifulSoup(html, 'html.parser')
-        return soup.title.string != "404 Not Found"
-    except:
-        return False
-
-async def process_team(session, team_name, start_season, end_season):
-    if await validate_team_name(session, team_name):
-        managers = await process_team_managers(session, team_name)
-        await process_seasons(session, team_name, managers, start_season, end_season)
-        print(f"Completed fetching seasons from {start_season}-{start_season+1} to {end_season}-{end_season+1} for {team_name}")
-    else:
-        print(f"Invalid team name: {team_name}")
+        await asyncio.sleep(2)  # 2-second delay between each season processing
 
 async def main():
-    input_history = []
-    
     async with aiohttp.ClientSession() as session:
         while True:
-            print("\nEnter team names (comma-separated) or 'quit' to exit:")
-            print("Type '!history' to view input history or '!<number>' to use a previous input.")
-            
-            user_input = input().strip().lower()
-            
-            if user_input == 'quit':
-                print("Exiting the program. Goodbye!")
+            team_name = input("Enter the team name (e.g., 'arsenal-fc') or 'quit': ").strip().lower()
+            if team_name == 'quit':
+                print("App closed. See you next time!")
                 break
-            elif user_input == '!history':
-                for i, entry in enumerate(input_history):
-                    print(f"{i+1}. {entry}")
-                continue
-            elif user_input.startswith('!'):
-                try:
-                    index = int(user_input[1:]) - 1
-                    user_input = input_history[index]
-                except (ValueError, IndexError):
-                    print("Invalid history index.")
-                    continue
-            
-            if user_input not in input_history:
-                input_history.append(user_input)
-            
-            team_names = [name.strip() for name in user_input.split(',')]
-            
+
             try:
-                start_season = int(input("Enter the start season year (e.g., 2002 for 2002-2003): "))
-                end_season = int(input("Enter the end season year (e.g., 2023 for 2023-2024): "))
+                start_season = int(input("Enter the first year of the start season (e.g. 2002 for 2002-2003): "))
+                end_season = int(input("Enter the first year of the end season (e.g. 2023 for 2023-2024): "))
                 
                 if start_season > end_season:
                     raise ValueError("Start season cannot be later than end season.")
                 
-                tasks = [process_team(session, team_name, start_season, end_season) for team_name in team_names]
-                await asyncio.gather(*tasks)
-                
+                managers = await process_team_managers(session, team_name)
+                await process_seasons(session, team_name, managers, start_season, end_season)
+                print(f"Completed fetching seasons from {start_season}-{start_season+1} to {end_season}-{end_season+1} for {team_name}")
             except ValueError as ve:
                 print(f"Invalid input: {str(ve)}")
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
+
+            print("\n")  # Add a newline for better readability between iterations
 
 if __name__ == "__main__":
     asyncio.run(main())

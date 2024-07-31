@@ -56,8 +56,8 @@ def get_manager_for_season(managers, season_start, season_end):
     
     return None
 
-async def process_seasons(session, team_name, managers, start_season, end_season):
-    for season_start in range(start_season, end_season + 1):
+async def process_all_seasons(session, team_name, managers):
+    for season_start in range(1992, 2024):
         season_end = season_start + 1
         manager = get_manager_for_season(managers, season_start, season_end)
         
@@ -87,21 +87,13 @@ async def main():
         while True:
             team_name = input("Enter the team name (e.g., 'arsenal-fc') or 'quit': ").strip().lower()
             if team_name == 'quit':
-                print("Exiting the program. Goodbye!")
+                print("App closed. See you next time!")
                 break
 
             try:
-                start_season = int(input("Enter the start season year (e.g., 2002 for 2002-2003): "))
-                end_season = int(input("Enter the end season year (e.g., 2023 for 2023-2024): "))
-                
-                if start_season > end_season:
-                    raise ValueError("Start season cannot be later than end season.")
-                
                 managers = await process_team_managers(session, team_name)
-                await process_seasons(session, team_name, managers, start_season, end_season)
-                print(f"Completed fetching seasons from {start_season}-{start_season+1} to {end_season}-{end_season+1} for {team_name}")
-            except ValueError as ve:
-                print(f"Invalid input: {str(ve)}")
+                await process_all_seasons(session, team_name, managers)
+                print(f"Completed fetching all seasons for {team_name}")
             except Exception as e:
                 print(f"An error occurred: {str(e)}")
 

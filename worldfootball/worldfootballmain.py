@@ -138,15 +138,15 @@ async def process_team(session, team_name):
 async def main():
     async with aiohttp.ClientSession() as session:
         while True:
-            print("Enter team names (comma-separated), 'help' for suggestions, or 'quit' to exit:")
+            print("Enter team name(s) (separated by comma, if multiple team names), 'help' for teamname help or 'quit': ")
             user_input = input().strip().lower()
             
             if user_input == 'quit':
-                print("Exiting the program. Goodbye!")
+                print("App closed. See you next time!")
                 break
             
             if user_input == 'help':
-                print("Enter the first letter of the team name:")
+                print("Enter the first letter of the team you want to find:")
                 letter = input().strip().lower()
                 if len(letter) == 1 and letter.isalpha():
                     suggestions = get_team_suggestions(letter)
