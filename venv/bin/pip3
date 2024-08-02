@@ -1,4 +1,4 @@
-#!/Users/applesmg/Localdev/Seasons/venv/bin/python3
+#!/Users/applesmg/Localdev/footballDataTools/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -37,7 +37,7 @@ function parseTransfers($: cheerio.CheerioAPI, tableSelector: string): Transfer[
   return transfers;
 }
 
-function extractTransfers(html: string): SeasonTransfers {
+export function extractTransfers(html: string): SeasonTransfers {
   const $ = cheerio.load(html) as cheerio.CheerioAPI;
   const transfers: SeasonTransfers = {};
 
@@ -132,7 +132,7 @@ function getUserInput(question: string): Promise<string> {
     });
   }
 
-  function filterDataFrom1992(data: SeasonTransfers): SeasonTransfers {
+  export function filterDataFrom1992(data: SeasonTransfers): SeasonTransfers {
     const filteredData: SeasonTransfers = {};
     let startFiltering = false;
   
