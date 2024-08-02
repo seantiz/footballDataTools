@@ -28,7 +28,7 @@ function parseTransfers($: cheerio.CheerioAPI, tableSelector: string): Transfer[
   $(tableSelector).find('tbody tr').each((_, element) => {
     const player = $(element).find('.hauptlink a').first().text().trim();
     const fromClub = $(element).find('td:nth-child(3)').text().trim();
-    const toClub = 'Newcastle United';
+    const toClub = $(element).find('td:nth-child(5)').text().trim(); // Changed to parse from HTML
     const transferSum = $(element).find('td:nth-child(4)').text().trim();
 
     transfers.push({ player, fromClub, toClub, transferSum });
