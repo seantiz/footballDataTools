@@ -189,7 +189,13 @@ function getUserInput(question: string): Promise<string> {
 
       // Filter data from 1992-1993 onwards and save to a new file
 const filteredData = filterDataFrom1992(jsonData);
-const pleraDir = path.join(process.cwd(), 'plera'); // Use current working directory
+const pleraDir = path.join(process.cwd(), 'plera');
+
+  if (!fs.existsSync(pleraDir)) {
+    fs.mkdirSync(pleraDir, { recursive: true });
+  }
+
+
 const pleraFilePath = path.join(pleraDir, path.basename(outputFile));
 
       fs.writeFileSync(pleraFilePath, JSON.stringify(filteredData, null, 2));
