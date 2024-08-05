@@ -19,3 +19,11 @@
 
 # JSON
 /*.json
+
+
+# More automated versions
+/worldfootball/playerseasons.py
+/worldfootball/playerseasonsauto.py
+/worldfootball/superauto.py
+/worldfootball/*.csv
+/worldfootball/scraping_progress.json
