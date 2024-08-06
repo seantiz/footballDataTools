@@ -27,3 +27,6 @@
 /worldfootball/superauto.py
 /worldfootball/*.csv
 /worldfootball/scraping_progress.json
+
+# Unclean data
+/playerseasonsraw
